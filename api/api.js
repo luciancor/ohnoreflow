@@ -1,90 +1,77 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const global = this;
 
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+if (typeof ChromeUtils === 'undefined') {
+  this.ChromeUtils = Components.utils;
+}
+const RESOURCE_HOST = 'cliqz';
 
-XPCOMUtils.defineLazyModuleGetter(this, "ExtensionUtils",
-                                  "resource://gre/modules/ExtensionUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "ExtensionCommon",
-                                  "resource://gre/modules/ExtensionCommon.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "ExtensionParent",
-                                  "resource://gre/modules/ExtensionParent.jsm");
+ChromeUtils.import('resource://gre/modules/Services.jsm');
+ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.importGlobalProperties([
+  'TextEncoder',
+  'TextDecoder',
+  'btoa',
+  'atob',
+  'XMLHttpRequest',
+  'indexedDB',
+  'crypto',
+]);
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  'resProto',
+  '@mozilla.org/network/protocol;1?name=resource',
+  'nsISubstitutingProtocolHandler',
+);
 
-this.reflows = class extends ExtensionAPI {
+
+this.cliqz = class extends ExtensionAPI {
   getAPI(context) {
-    const { windowManager } = context.extension;
-
-    let EventManager = ExtensionCommon.EventManager;
-
-    // Weakly maps XUL windows to their reflow observers.
-    let windowMap = new WeakMap();
-
     return {
-      reflows: {
-        onUninterruptableReflow: new EventManager(context, "reflow-api", fire => {
+      cliqz: {
+        start: function(baseURL) {
+          debugger;
+          if (resProto.setSubstitutionWithFlags) {
+            resProto.setSubstitutionWithFlags(
+              RESOURCE_HOST,
+              Services.io.newURI(baseURL + 'api/cliqz/chrome/content/'),
+              resProto.ALLOW_CONTENT_ACCESS,
+            );
+          }
 
-          const windowTracker = ExtensionParent.apiManager.global.windowTracker;
-          let windows = Array.from(windowManager.getAll(), win => win.window);
+          ChromeUtils.import(baseURL + 'api/cliqz/modules/CLIQZ.jsm');
+          Services.scriptloader.loadSubScriptWithOptions(baseURL + 'api/cliqz/chrome/content/runloop.js', { target: global, ignoreCache: true });
+          Services.scriptloader.loadSubScriptWithOptions(baseURL + 'api/cliqz/chrome/content/core/app.bundle.js', { target: { global: global }, ignoreCache: true });
 
-          let observeWindow = (win) => {
-            let observer = {
-              reflow(start, end) {
-                // Grab the stack, but slice off the top frame inside this observer.
-                let stack = new Error().stack.split("\n").slice(1).join("\n");
-                // If the stack string is empty, and a debugger is attached, try to
-                // hit a breakpoint.
-                if (!stack) {
-                  let debug = Cc["@mozilla.org/xpcom/debug;1"].getService(Ci.nsIDebug2);
-                  if (debug.isDebuggerAttached) {
-                    debug.break("api.js", -1);
-                  }
-                }
+          global.app = new global.App({
+            version: 4,
+            meta: "",
+          });
 
-                let id = windowTracker.getId(win);
-                fire.async(id, start, end, stack);
+
+            global.app.start();
+            CLIQZ.app = global.app;
+            CLIQZ.config = global.config;
+            CLIQZ.CliqzUtils = global.CliqzUtils;
+        },
+        stop: function() {
+          resProto.setSubstitution(RESOURCE_HOST, null);
+
+          if (global.app) {
+            global.app.stop(
+              aReason === APP_SHUTDOWN,
+              aReason === ADDON_DISABLE || aReason === ADDON_UNINSTALL,
+              TELEMETRY_SIGNAL[aReason] || aReason,
+              {
+                meta: aData,
               },
-              reflowInterruptible(start, end) {},
-              QueryInterface: XPCOMUtils.generateQI([Ci.nsIReflowObserver,
-                                                     Ci.nsISupportsWeakReference])
-            };
-
-            let docShell = win.QueryInterface(Ci.nsIInterfaceRequestor)
-                              .getInterface(Ci.nsIWebNavigation)
-                              .QueryInterface(Ci.nsIDocShell);
-            docShell.addWeakReflowObserver(observer);
-
-            windowMap.set(win, observer);
-          };
-
-          for (let win of windows) {
-            observeWindow(win);
+            );
           }
 
-          let windowOpenListener = (win) => {
-            observeWindow(win);
-          }
-
-          windowTracker.addListener("domwindowopened", windowOpenListener);
-          windows = [];
-
-          return () => {
-            let windows = Array.from(windowManager.getAll(), win => win.window);
-            for (let win of windows) {
-              let observer = windowMap.get(win);
-              if (observer) {
-                let docShell = win.QueryInterface(Ci.nsIInterfaceRequestor)
-                                  .getInterface(Ci.nsIWebNavigation)
-                                  .QueryInterface(Ci.nsIDocShell);
-                docShell.removeWeakReflowObserver(observer);
-              }
-
-              windowMap.delete(win);
-            }
-
-            windowTracker.removeListener("domwindowopened", windowOpenListener);
-          }
-
-        }).api()
-      }
+          Components.utils.unload(baseURL + 'api/cliqz/modules/CLIQZ.jsm');
+          global.stopTimers();
+        },
+      },
     };
   }
 }

@@ -1,0 +1,22 @@
+#navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) {
+  -moz-user-focus: ignore;
+  height: 0px;
+  min-height: 0px;
+  position: relative;
+  padding: 0px;
+  overflow: visible; }
+  #navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) > div {
+    -moz-user-focus: ignore;
+    width: 100%;
+    height: 0px;
+    position: absolute;
+    z-index: 10000; }
+    #navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) > div iframe, #navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) > div browser {
+      -moz-user-focus: ignore;
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      box-shadow: 0 4px 4px -2px #999;
+      z-index: 10000; }
+      #navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) > div iframe .dropdown-hidden, #navigator-toolbox > toolbar#cliqz-toolbar:not(#toolbar-menubar):not(#TabsToolbar):not(#nav-bar):not(#addon-bar) > div browser .dropdown-hidden {
+        box-shadow: none; }

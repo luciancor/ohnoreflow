@@ -1,0 +1,47 @@
+.container {
+  color: #1A1A25;
+  padding-top: 5%;
+  width: 75%; }
+  .container .unsafe {
+    background: #fce8f0; }
+  .container .safe {
+    background: #e7ffe7; }
+  .container .card {
+    margin-bottom: 40px; }
+    .container .card .card-subtitle {
+      color: #1A1A25; }
+    .container .card .card-footer {
+      background: #fcfcfc;
+      font-size: 0.7rem;
+      margin-top: 25px; }
+  .container pre {
+    font-size: 80%;
+    background: #f7f7ff;
+    padding: 20px;
+    border-radius: 3px; }
+  .container code {
+    background: #f7f7ff;
+    border-radius: .14rem;
+    color: #1A1A25;
+    font-size: 80%;
+    line-height: 1.2;
+    padding: 0.1rem .3rem;
+    white-space: nowrap; }
+  .container .nav {
+    position: fixed;
+    margin-right: 2%; }
+    .container .nav a {
+      display: block;
+      color: #1A1A25; }
+    .container .nav li {
+      padding: 5px;
+      border-radius: 3px; }
+    .container .nav li:hover {
+      background: #f7f7ff; }
+  .container .accordion {
+    cursor: pointer; }
+  .container .dem-factor-item {
+    list-style: none; }
+  .container .dem-factor-name {
+    float: left;
+    width: 100px; }

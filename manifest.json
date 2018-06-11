@@ -1,53 +1,25 @@
 {
   "manifest_version": 2,
-  "name": "Oh no! Reflow!",
-  "version": "0.22",
-  "description": "A tool for detecting and recording reflow in the browser front-end code.",
+  "name": "Cliqz WebExtension",
+  "version": "0.0.1",
+  "description": "Full Cliqz as an experimenta API",
   "background": {
     "scripts": ["background.js"]
   },
-  "browser_action": {
-    "default_popup": "content/popup.html",
-    "default_title": "Oh no! Reflow!",
-    "default_icon": "icons/toolbar_off.png"
-  },
   "applications": {
     "gecko": {
-      "id": "ohnoreflow@mikeconley.ca",
-      "strict_min_version": "52.0",
-      "update_url": "https://raw.githubusercontent.com/mikeconley/ohnoreflow/master/docs/update.rdf"
+      "id": "experimental@cliqz.com",
+      "strict_min_version": "52.0"
     }
   },
-  "permissions": [
-    "downloads",
-    "storage"
-  ],
-
   "experiment_apis": {
-    "reflows": {
+    "cliqz": {
       "schema": "api/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
         "script": "api/api.js",
-        "paths": [["reflows"]]
+        "paths": [["cliqz"]]
       }
-    }
-  },
-
-  "commands": {
-    "Toggle": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+9",
-        "mac": "MacCtrl+Shift+9"
-      },
-      "description": "Toggles reflow recording on/off."
-    },
-    "DumpReport": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+0",
-        "mac": "MacCtrl+Shift+0"
-      },
-      "description": "Dumps a reflow report to a new tab."
     }
   }
 }
